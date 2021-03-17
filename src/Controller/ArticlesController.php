@@ -54,5 +54,15 @@ class ArticlesController extends AppController
         }
         $this->set(compact('article'));
     }
-}
 
+    public function delete($slug=null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+
+        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        if ( $this->Articles->delete($article) ) {
+            $this->Flash->success('記事('.$article->title.')を削除しました。');
+            return $this->redirect(['action'=>'index']);
+        }
+    }
+}
