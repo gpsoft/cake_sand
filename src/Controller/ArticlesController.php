@@ -39,5 +39,20 @@ class ArticlesController extends AppController
         }
         $this->set(compact('article'));
     }
+
+    public function edit($slug=null)
+    {
+        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        if ( $this->request->is(['post', 'put']) ) {
+            $article = $this->Articles->patchEntity($article, $this->request->getData());
+
+            if ( $this->Articles->save($article) ) {
+                $this->Flash->success('記事を保存しました。');
+                return $this->redirect(['action'=>'index']);
+            }
+            $this->Flash->error('記事の保存に失敗しました');
+        }
+        $this->set(compact('article'));
+    }
 }
 
