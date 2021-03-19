@@ -11,6 +11,30 @@ namespace App\Controller;
  */
 class UsersController extends AppController
 {
+    public function beforeFilter(\Cake\Event\EventInterface $event)
+    {
+        parent::beforeFilter($event);
+
+        $this->Authentication->addUnauthenticatedActions(['login']);
+    }
+
+    public function login()
+    {
+        $this->request->allowMethod(['get', 'post']);
+        $result = $this->Authentication->getResult();
+        if ( $result->isValid() ) {
+            $redirect = $this->request->getQuery('redirect', [
+                'controller'=>'Articles',
+                'action'=>'index'
+            ]);
+            return $this->redirect($redirect);
+        }
+        if ( $this->request->is('post') &&
+            !$result->isValid() ) {
+            $this->Flash->error('ログインに失敗しました');
+        }
+    }
+
     /**
      * Index method
      *

@@ -16,6 +16,10 @@ declare(strict_types=1);
  */
 namespace App;
 
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\Exception\MissingPluginException;
@@ -28,6 +32,8 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Cake\Routing\Router;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -36,6 +42,7 @@ use Cake\Routing\Middleware\RoutingMiddleware;
  * want to use in your application.
  */
 class Application extends BaseApplication
+    implements AuthenticationServiceProviderInterface
 {
     /**
      * Load all the application configuration and bootstrap logic.
@@ -46,8 +53,7 @@ class Application extends BaseApplication
     {
         // Call parent to load bootstrap from files.
         parent::bootstrap();
-
-        if (PHP_SAPI === 'cli') {
+if (PHP_SAPI === 'cli') {
             $this->bootstrapCli();
         } else {
             FactoryLocator::add(
@@ -93,6 +99,8 @@ class Application extends BaseApplication
             // `new RoutingMiddleware($this, '_cake_routes_')`
             ->add(new RoutingMiddleware($this))
 
+            ->add(new AuthenticationMiddleware($this))
+
             // Parse various types of encoded request bodies so that they are
             // available as array through $request->getData()
             // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
@@ -136,5 +144,28 @@ class Application extends BaseApplication
         $this->addPlugin('Migrations');
 
         // Load more plugins here
+    }
+
+    public function getAuthenticationService(ServerRequestInterface $request): AuthenticationService
+    {
+        $authenticationService = new AuthenticationService([
+            'unauthenticatedRedirect'=>Router::url(['controller'=>'users', 'action'=>'login']),
+            'queryParam'=>'redirect',
+        ]);
+        $authenticationService->loadIdentifier('Authentication.Password', [
+            'fields'=>[
+                'username'=>'email',
+                'password'=>'password',
+            ],
+        ]);
+        $authenticationService->loadAuthenticator('Authentication.Session');
+        $authenticationService->loadAuthenticator('Authentication.Form', [
+            'fields'=>[
+                'username'=>'email',
+                'password'=>'password',
+            ],
+            'loginUrl'=>Router::url(['controller'=>'users', 'action'=>'login']),
+        ]);
+        return $authenticationService;
     }
 }
