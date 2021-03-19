@@ -15,7 +15,7 @@ class UsersController extends AppController
     {
         parent::beforeFilter($event);
 
-        $this->Authentication->addUnauthenticatedActions(['login']);
+        $this->Authentication->addUnauthenticatedActions(['login', 'add']);
     }
 
     public function login()
@@ -32,6 +32,16 @@ class UsersController extends AppController
         if ( $this->request->is('post') &&
             !$result->isValid() ) {
             $this->Flash->error('ログインに失敗しました');
+        }
+    }
+
+    public function logout()
+    {
+        $result = $this->Authentication->getResult();
+        if ( $result->isValid() ) {
+            $this->Authentication->logout();
+            $this->Flash->success('ログアウトしました');
+            return $this->redirect(['controller'=>'Users', 'action'=>'login']);
         }
     }
 
