@@ -37,12 +37,16 @@ class ArticlesController extends AppController
             }
             $this->Flash->error('記事の保存に失敗しました');
         }
-        $this->set(compact('article'));
+        $tags = $this->Articles->Tags->find('list');
+        $this->set(compact('article', 'tags'));
     }
 
     public function edit($slug=null)
     {
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles
+                        ->findBySlug($slug)
+                        ->contain('Tags')
+                        ->firstOrFail();
         if ( $this->request->is(['post', 'put']) ) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
@@ -52,7 +56,8 @@ class ArticlesController extends AppController
             }
             $this->Flash->error('記事の保存に失敗しました');
         }
-        $this->set(compact('article'));
+        $tags = $this->Articles->Tags->find('list');
+        $this->set(compact('article', 'tags'));
     }
 
     public function delete($slug=null)
