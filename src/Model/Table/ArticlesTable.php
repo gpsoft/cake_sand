@@ -23,6 +23,10 @@ class ArticlesTable extends Table
             // TODO: slug should be unique
             // TODO: make 191 constant?
         }
+
+        if ( $entity->tag_string ) {
+            $entity->tags = $this->_buildTags($entity->tag_string);
+        }
     }
 
     public function validationDefault(Validator $validator): Validator
@@ -51,6 +55,21 @@ class ArticlesTable extends Table
             $query->leftJoinWith('Tags')->where(['Tags.title IN'=>$options['tags']]);
         }
         return $query->group(['Articles.id']);
+    }
+
+    private function _buildTags($tagString)
+    {
+        $tags = array_unique(
+            array_filter(
+                array_map('trim', explode(',', $tagString))));
+        $query = $this->Tags->find()->where(['Tags.title IN'=>$tags]);
+        $upserts = $query->toArray();
+        $existingTags = array_map(fn($t)=>$t->title, $upserts);
+        $newTags = array_diff($tags, $existingTags);
+        foreach ( $newTags as $tag ) {
+            $upserts[] = $this->Tags->newEntity(['title'=>$tag]);
+        }
+        return $upserts;
     }
 }
 

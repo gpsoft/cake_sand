@@ -158,10 +158,6 @@ th {
     margin-bottom: 2.0rem;
 }
 
-select[multiple] {
-	height: 100px;
-}
-
 /* Paginator */
 .paginator {
     text-align: right;

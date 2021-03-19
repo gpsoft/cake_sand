@@ -5,7 +5,7 @@
     // TODO: user_id from login user
     echo $this->Form->control('title', ['label'=>'タイトル']);
     echo $this->Form->control('body', ['label'=>'本文', 'rows'=>'3']);
-    echo $this->Form->control('tags._ids', ['options'=>$tags]);
+    echo $this->Form->control('tag_string', ['type'=>'text']);
     echo $this->Form->button('保存');
     echo $this->Form->end();
 ?>
