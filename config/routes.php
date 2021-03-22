@@ -23,6 +23,7 @@
 
 use Cake\Routing\Route\DashedRoute;
 use Cake\Routing\RouteBuilder;
+use Cake\Core\Configure;
 
 /*
  * The default class to use for all routes
@@ -75,6 +76,13 @@ $routes->scope('/', function (RouteBuilder $builder) {
      * routes you want in your application.
      */
     $builder->fallbacks();
+
+    // Fix: MissingRouteException on DebugKit toolbar
+    // https://www.m-kobayashi.org/working_log/2020/06/04_01.html
+    // https://discourse.cakephp.org/t/debugkit-not-showing-due-to-missing-route/7419
+    if ( Configure::read('debug') ) {
+        $builder->connect('/:controller/:action/*', ['plugin' => 'DebugKit']);
+    }
 });
 
 /*
