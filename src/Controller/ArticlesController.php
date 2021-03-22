@@ -13,6 +13,8 @@ class ArticlesController extends AppController
 
     public function index()
     {
+        $this->Authorization->skipAuthorization();
+
         $articles = $this->Paginator->paginate($this->Articles->find());
         $this->set(compact('articles'));
     }
@@ -23,16 +25,19 @@ class ArticlesController extends AppController
                         ->findBySlug($slug)
                         ->contain('Tags')
                         ->firstOrFail();
+        $this->Authorization->authorize($article);
+
         $this->set(compact('article'));
     }
 
     public function add()
     {
         $article = $this->Articles->newEmptyEntity();
+        $this->Authorization->authorize($article);
+
         if ( $this->request->is('post') ) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
-            $article->user_id = 1;
-            // TODO: user_id from login user
+            $article->user_id = $this->request->getAttribute('identity')->getIdentifier();
 
             if ( $this->Articles->save($article) ) {
                 $this->Flash->success('記事を保存しました。');
@@ -50,8 +55,12 @@ class ArticlesController extends AppController
                         ->findBySlug($slug)
                         ->contain('Tags')
                         ->firstOrFail();
+        $this->Authorization->authorize($article);
+
         if ( $this->request->is(['post', 'put']) ) {
-            $article = $this->Articles->patchEntity($article, $this->request->getData());
+            $article = $this->Articles->patchEntity($article, $this->request->getData(), [
+                'accessibleFields'=>['user_id'=>false],
+            ]);
 
             if ( $this->Articles->save($article) ) {
                 $this->Flash->success('記事を保存しました。');
@@ -68,6 +77,8 @@ class ArticlesController extends AppController
         $this->request->allowMethod(['post', 'delete']);
 
         $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $this->Authorization->authorize($article);
+
         if ( $this->Articles->delete($article) ) {
             $this->Flash->success('記事('.$article->title.')を削除しました。');
             return $this->redirect(['action'=>'index']);
