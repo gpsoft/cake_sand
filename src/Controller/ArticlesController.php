@@ -87,10 +87,13 @@ class ArticlesController extends AppController
 
     public function tags(...$tags)
     {
+        $this->Authorization->skipAuthorization();
+
         //$tags = $this->request->getParam('pass');
         $articles = $this->Articles->find('tagged', [
             'tags'=>$tags
         ]);
+
         $this->set(compact('articles', 'tags'));
     }
 }

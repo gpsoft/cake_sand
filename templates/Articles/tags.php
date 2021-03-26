@@ -10,6 +10,7 @@ $this->Html->link($article->title,
 ?>
         </h2>
         <span><?= h($article->created) ?></span>
+<?= $this->Text->autoParagraph(h($article->body)) ?>
     </article>
 <?php endforeach; ?>
 </section>
