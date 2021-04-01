@@ -9,7 +9,7 @@ CakePHPフレームワークの実験プロジェクト。
 - php 7.4
 - composer
 - apache httpd
-- mysql
+- mysql, postgres
 
 ## 実験内容
 
