@@ -45,6 +45,37 @@ $ php composer.phar create-project --prefer-dist cakephp/app:4.* .
 - `config/app_local.php`
 - `config/app.php`
 
+```php
+<?php
+// app_local.php for development
+return [
+    'debug' => true,
+    'Security' => [
+        'salt' => '25f.....',
+    ],
+    'App' => [
+        'defaultLocale' => 'ja_JP',
+        'defaultTimezone' => 'Asia/Tokyo',
+    ],
+    'Datasources' => [
+        'default' => [
+            'host' => 'db',
+            //'port' => 'non_standard_port_number',
+            'username' => 'root',
+            'password' => 'mysql',
+            'database' => 'cake_sand',
+        ],
+        'test' => [
+            'host' => 'localhost',
+            //'port' => 'non_standard_port_number',
+            'username' => 'root',
+            'password' => 'mysql',
+            'database' => 'cake_sand_test',
+        ],
+    ],
+];
+```
+
 `config/bootstrap.php`で、`.env`をロードするようにしておけば、`config/.env`で環境変数を定義可能。
 
 ```php
@@ -78,8 +109,29 @@ $ bin/cake bake template hoges
 $ bin/cake bake all fugas
 
 $ bin/cake bake policy --type entity Piyo
+
+$ bin/cake bake migration_snapshot Initial
+$ bin/cake bake migration WhatToDo ...
+$ bin/cake bake migration CreateHoges name:string place:text count:integer created modified
+$ bin/cake bake seed Hoges
+$ bin/cake bake seed --data Hoges
 ```
 
+### Migration
+
+`bake`したマイグレーションファイル名のタイムスタンプがUTCになるのは、一意性を考えるとしかたないのかな。
+
+- `CreateHoges`, `DropHoges`, `AlterHoge`,
+- `AddFugaToHoges`, `RemoveFugaFromHoges`, `AlterFugaOnHoges`
+
+```
+$ bin/cake migrations status
+$ bin/cake migrations migrate
+$ bin/cake migrations rollback
+
+$ bin/cake migrations seed
+$ bin/cake migrations seed --seed HogesSeed
+```
 
 ### Authentication
 
@@ -166,17 +218,33 @@ $ heroku login
 $ heroku apps:create cake-sand
 $ heroku config:add APP_DEFAULT_LOCALE="ja_JP" APP_DEFAULT_TIMEZONE="Asia/Tokyo" SECURITY_SALT=""
 $ heroku addons:create heroku-postgresql:hobby-dev
+```
+
+DBへつないでテーブルを生成。
+
+```
 $ heroku pg:info
 $ heroku pg:credentials:url
 $ heroku run bash
 # psql "postgres://ymxhuuhkf....."
-$ git push heroku master
 ```
 
 本番用のSALTは、`openssl_random_pseudo_bytes()`とかで作ればいいんじゃないかな。
 
 ```php
 echo bin2hex(openssl_random_pseudo_bytes(32));
+```
+
+デプロイ。
+
+```
+$ git push heroku master
+```
+
+migrationsコマンド。
+
+```
+$ heroku run bin/cake migrations migrate
 ```
 
 問題が1つ。
