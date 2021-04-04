@@ -1,18 +1,4 @@
 <?php
-/**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link      https://cakephp.org CakePHP(tm) Project
- * @since     0.10.0
- * @license   https://opensource.org/licenses/mit-license.php MIT License
- * @var \App\View\AppView $this
- */
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
@@ -31,7 +17,7 @@ $this->disableAutoLayout();
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <?= $this->Html->meta('icon') ?>
         <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
-        <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake', 'home']) ?>
+        <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake', 'common']) ?>
         <?= $this->fetch('meta') ?>
         <?= $this->fetch('css') ?>
         <?= $this->fetch('script') ?>
@@ -39,40 +25,43 @@ $this->disableAutoLayout();
     </head>
     <body>
         <header>
-            <div class="container">
-                <div class="header-content">
-                    <div class="brand">
-                        <a href="<?= $this->Url->build('/') ?>">Cake Sand</a>
-                    </div>
-                    <div class="user-info">
+            <div class="container clearfix mt-16 mb-16">
+                <h1 class="float-left mb-0">
+                    <strong><small><a href="<?= $this->Url->build('/') ?>">Cake Sand</a></small></strong>
+                </h1>
+                <div class="float-right">
 <?php
 if ( $this->Identity->isLoggedIn() ) {
 ?>
-                        <div>
-                            <img class="avatar" th:src="${#authentication.principal.avatar} != '' ? ${#authentication.principal.avatar} : @{/img/default_avatar.jpg}" />
-                            <span th:text="${#authentication.principal.username}">user</span>
-                            <div class="logout">
-                                <form th:action="@{/logout}" method="post">
-                                    <input type="submit" value="Logout" />
-                                </form>
-                            </div>
-                        </div>
+                    <div class="row">
+                            <img class="avatar" />
+                            <span>User name</span>
+<?php
+    echo $this->Form->create();
+    echo $this->Form->button('Logout');
+    echo $this->Form->end();
+?>
+                    </div>
 <?php
 } else {
 ?>
-                        <div>
-                            <?= $this->Html->link('Login', ['action' => 'login', 'controller'=>'auth'], ['class' => 'ope']) ?>
-                        </div> 
+                    <div>
+<?php
+    echo $this->Html->link('Login',
+        ['action' => 'login', 'controller'=>'auth'],
+        ['class' => 'button']);
+?>
+                    </div> 
 <?php
 }
 ?>
                     </div>
-                </div>
             </div>
         </header>
         <main>
             <div class="container">
-                <ul>
+                <h1><small>Menu</small></h1>
+                <ul class="ml-16">
                     <li><?= $this->Html->link('Articles(from tutorial)', ['action' => 'index', 'controller'=>'Articles']) ?></li>
                     <li><?= $this->Html->link('Users(baked)', ['action' => 'index', 'controller'=>'Users']) ?></li>
                     <li><?= $this->Html->link('Tags(baked)', ['action' => 'index', 'controller'=>'Tags']) ?></li>
