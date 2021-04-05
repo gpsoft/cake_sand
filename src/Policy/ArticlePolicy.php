@@ -5,12 +5,20 @@ namespace App\Policy;
 
 use App\Model\Entity\Article;
 use Authorization\IdentityInterface;
+use Authorization\Policy\BeforePolicyInterface;
 
 /**
  * Article policy
  */
-class ArticlePolicy
+class ArticlePolicy implements BeforePolicyInterface
 {
+    public function before($user, $article, $action)
+    {
+        if ( is_null($user) ) {
+            if ( $action == 'view' ) return true;
+        }
+    }
+
     /**
      * Check if $user can add Article
      *
